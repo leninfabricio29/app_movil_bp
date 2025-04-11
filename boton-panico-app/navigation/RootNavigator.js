@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import LoginScreen from "../screens/LoginScreen";
-import HomeScreen from "../screens/HomeScreen"; // O tu pantalla principal
+import { createStackNavigator } from "@react-navigation/stack";
+import AuthStack from "./AuthStack"; // Importamos tu AuthStack
+import AppTabs from "./AppTabs"; // Importamos tus AppTabs
 
 const Stack = createStackNavigator();
 
@@ -15,21 +14,27 @@ const RootNavigator = () => {
     const checkLogin = async () => {
       const token = await AsyncStorage.getItem("token");
       if (token) {
-        setIsAuthenticated(true); // Si el token existe, el usuario está logueado
+        setIsAuthenticated(true);
       }
     };
 
     checkLogin();
   }, []);
 
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
   return (
-      <Stack.Navigator>
-        {isAuthenticated ? (
-          <Stack.Screen name="Home" component={HomeScreen} />
-        ) : (
-          <Stack.Screen name="Login" component={LoginScreen} />
-        )}
-      </Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {isAuthenticated ? (
+        <Stack.Screen name="AppTabs" component={AppTabs} />
+      ) : (
+        <Stack.Screen name="Auth">
+          {(props) => <AuthStack {...props} onLogin={handleLogin} />}
+        </Stack.Screen>
+      )}
+    </Stack.Navigator>
   );
 };
 
