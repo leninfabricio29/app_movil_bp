@@ -1,19 +1,84 @@
-import axios from "axios";
+// services/api.js
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Config from '../../config/env';
 
-// Cambia esto por la URL de tu API real
-const API_URL = "http://172.22.48.1:5050/api/auth/login";
+// Crear instancia de axios con configuración común
+const apiClient = axios.create({
+  baseURL: Config.API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: Config.API_TIMEOUT,
+});
 
-export const login = async (email, password) => {
-  try {
-    const response = await axios.post(`${API_URL}/login`, { email, password });
-    
-    if (response.status === 200) {
-      // El login fue exitoso, podemos devolver el token
-      return response.data.token;
+// Interceptor para añadir token de autenticación a las peticiones
+apiClient.interceptors.request.use(
+  async (config) => {
+    // Obtener el token de autenticación si existe
+    try {
+      const token = await AsyncStorage.getItem(Config.STORAGE_KEYS.AUTH_TOKEN);
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error al recuperar el token:', error);
     }
-
-    throw new Error(response.data.message || "Error desconocido");
-  } catch (error) {
-    throw error.response?.data || error;
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
+
+// Servicios de autenticación
+const authService = {
+  // Registrar un nuevo usuario
+  register: async (userData) => {
+    try {
+      const url = Config.API_ROUTES.REGISTER;
+      const response = await apiClient.post(url, userData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  // Login de usuario
+  // Login de usuario
+login: async (credentials) => {
+  try {
+    const url = Config.API_ROUTES.LOGIN;
+    console.log('URL completa de login:', `${Config.API_URL}${url}`);
+    console.log('Datos enviados:', JSON.stringify(credentials));
+    
+    const response = await apiClient.post(url, credentials);
+    console.log('Respuesta de login:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error detallado:', error.response ? {
+      status: error.response.status,
+      data: error.response.data,
+      headers: error.response.headers
+    } : error.message);
+    throw error;
+  }
+},
+
+  // Obtener datos del usuario logueado
+  getUser: async (userId) => {
+    try {
+      const url = Config.API_ROUTES.GET_USER_LOGIN.replace(':id', userId);
+      const response = await apiClient.get(url);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+
 };
+
+export { authService };
+export default apiClient;

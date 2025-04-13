@@ -9,20 +9,56 @@ import {
   Image,
   StatusBar,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Alert,
+  ActivityIndicator
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { authService } from "../src/api/auth-service";
+import Config from "../config/env";
 
 export default function LoginScreen({ navigation, onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    console.log("Intentando login con", email, password);
-    // Lógica de autenticación aquí
-    onLogin(); // Simula que se logueó
-  };
+
+
+// Dentro del componente
+const handleLogin = async () => {
+  setLoading(true);
+  
+  try {
+    const response = await authService.login({ email, password });
+    
+    if (response.token) {
+      // Guardar token y datos de usuario
+      await AsyncStorage.setItem(Config.STORAGE_KEYS.AUTH_TOKEN, response.token);
+      if (response.user) {
+        await AsyncStorage.setItem(Config.STORAGE_KEYS.USER_DATA, JSON.stringify(response.user)
+        );
+      }
+      
+      // Activar la autenticación global (esto cambiará la navegación)
+      if (global.auth) {
+        global.auth.login();
+      }
+    } else {
+      Alert.alert('Error', 'No se recibió un token de autenticación');
+    }
+  } catch (error) {
+    // Manejar errores
+    let message = 'Error al iniciar sesión';
+    if (error.response?.data?.message) {
+      message = error.response.data.message;
+    }
+    Alert.alert('Error', message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -37,7 +73,7 @@ export default function LoginScreen({ navigation, onLogin }) {
             style={styles.logo} 
             resizeMode="contain"
           />
-          <Text style={styles.appName}>SafeGuard</Text>
+          <Text style={styles.appName}>{Config.APP_NAME}</Text>
           <Text style={styles.slogan}>Seguridad a un toque de distancia</Text>
           
           <View style={styles.formContainer}>
@@ -51,6 +87,7 @@ export default function LoginScreen({ navigation, onLogin }) {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 placeholderTextColor="#A0A0A0"
+                editable={!loading}
               />
             </View>
             
@@ -63,8 +100,12 @@ export default function LoginScreen({ navigation, onLogin }) {
                 onChangeText={setPassword}
                 secureTextEntry={secureTextEntry}
                 placeholderTextColor="#A0A0A0"
+                editable={!loading}
               />
-              <TouchableOpacity onPress={() => setSecureTextEntry(!secureTextEntry)}>
+              <TouchableOpacity 
+                onPress={() => setSecureTextEntry(!secureTextEntry)}
+                disabled={loading}
+              >
                 <Ionicons
                   name={secureTextEntry ? "eye-off-outline" : "eye-outline"}
                   size={20}
@@ -74,20 +115,30 @@ export default function LoginScreen({ navigation, onLogin }) {
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-              <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+            <TouchableOpacity 
+              style={[styles.loginButton, loading && styles.disabledButton]} 
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#ffffff" size="small" />
+              ) : (
+                <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+              )}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.registerContainer} onPress={() => navigation.navigate("Register")}>
+            <TouchableOpacity 
+              style={styles.registerContainer} 
+              onPress={() => navigation.navigate("Register")}
+              disabled={loading}
+            >
               <Text style={styles.registerText}>Crear cuenta nueva</Text>
             </TouchableOpacity>
-
           </View>
+          
           <Text style={styles.creditsText}>Powered By. SoftKilla</Text>
-
         </View>
       </KeyboardAvoidingView>
-      
     </SafeAreaView>
   );
 }
@@ -155,6 +206,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
     elevation: 1
+  },
+  disabledButton: {
+    backgroundColor: "#A0AEC0",
   },
   loginButtonText: {
     color: "#ffffff",

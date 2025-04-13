@@ -1,37 +1,53 @@
+// navigation/RootNavigator.js
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createStackNavigator } from "@react-navigation/stack";
-import AuthStack from "./AuthStack"; // Importamos tu AuthStack
-import AppTabs from "./AppTabs"; // Importamos tus AppTabs
+import AuthStack from "./AuthStack";
+import AppTabs from "./AppTabs";
+
+import HomeStack from './HomeStack'; // ajusta el path
+
 
 const Stack = createStackNavigator();
 
 const RootNavigator = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar si hay un token guardado
     const checkLogin = async () => {
-      const token = await AsyncStorage.getItem("token");
-      if (token) {
-        setIsAuthenticated(true);
+      try {
+        const token = await AsyncStorage.getItem("token");
+        setIsAuthenticated(!!token);
+      } catch (error) {
+        console.error("Error checking auth:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     checkLogin();
   }, []);
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
+  if (isLoading) {
+    return null;
+  }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{ 
+        headerShown: false,
+        gestureEnabled: false
+      }}
+    >
       {isAuthenticated ? (
-        <Stack.Screen name="AppTabs" component={AppTabs} />
+        <>
+          {/* IMPORTANTE: AppTabs debe estar primero */}
+          <Stack.Screen name="AppTabs" component={AppTabs} />
+        </>
       ) : (
         <Stack.Screen name="Auth">
-          {(props) => <AuthStack {...props} onLogin={handleLogin} />}
+          {(props) => <AuthStack {...props} onLogin={() => setIsAuthenticated(true)} />}
         </Stack.Screen>
       )}
     </Stack.Navigator>

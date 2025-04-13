@@ -5,6 +5,7 @@ import ContactScreen from "../screens/ContactScreen";
 import AccountScreen from "../screens/AccountScreen";
 import HistorialScreen from "../screens/HistorialScreen";
 import { Ionicons } from "@expo/vector-icons"; // íconos bonitos
+import UsersSearchScreen from "../screens/UsersSearchScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -32,10 +33,11 @@ export default function TabsNavigator() {
         },
       })}
     >
-      <Tab.Screen name="Inicio" component={HomeScreen} />
+      <Tab.Screen name="Inicio" component={HomeScreen}  />
       <Tab.Screen name="Historial" component={HistorialScreen} />
       <Tab.Screen name="Contactos" component={ContactScreen} />
       <Tab.Screen name="Cuenta" component={AccountScreen} />
+      <Screen name="Usuarios" component={UsersSearchScreen} />
     </Tab.Navigator>
   );
 }
