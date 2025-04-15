@@ -7,7 +7,7 @@ const __DEV__ = process.env.NODE_ENV !== 'production';
 // Configuración de la API para diferentes entornos
 const Config = {
   // URLs de API
-  API_URL: __DEV__ ? 'http://3.148.85.5:5050/api' : 'http://localhost:3000',
+  API_URL: __DEV__ ? 'https://softkilla.es/api' : 'http://localhost:3000',
 
   // Rutas específicas
   API_ROUTES: {
