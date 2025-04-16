@@ -1,3 +1,4 @@
+import { registerForPushNotificationsAsync } from "../src/api/notification-service";
 import React, { useState } from "react";
 import { 
   View, 
@@ -37,11 +38,13 @@ const handleLogin = async () => {
       // Guardar token y datos de usuario
       await AsyncStorage.setItem(Config.STORAGE_KEYS.AUTH_TOKEN, response.token);
       if (response.user) {
-        await AsyncStorage.setItem(Config.STORAGE_KEYS.USER_DATA, JSON.stringify(response.user)
-        );
+        await AsyncStorage.setItem(Config.STORAGE_KEYS.USER_DATA, JSON.stringify(response.user));
       }
-      
-      // Activar la autenticación global (esto cambiará la navegación)
+
+      // ✅ Enviar token Expo al backend
+      await registerForPushNotificationsAsync();
+
+      // Activar la autenticación global
       if (global.auth) {
         global.auth.login();
       }
@@ -49,7 +52,6 @@ const handleLogin = async () => {
       Alert.alert('Error', 'No se recibió un token de autenticación');
     }
   } catch (error) {
-    // Manejar errores
     let message = 'Error al iniciar sesión';
     if (error.response?.data?.message) {
       message = error.response.data.message;
@@ -59,6 +61,7 @@ const handleLogin = async () => {
     setLoading(false);
   }
 };
+
 
   return (
     <SafeAreaView style={styles.container}>
