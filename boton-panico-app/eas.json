@@ -4,23 +4,20 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "android": {
+      "googleServicesFile": "./android/google-services.json"
+    },
     "development": {
       "developmentClient": true,
       "distribution": "internal"
     },
     "preview": {
       "distribution": "internal",
-      "android": {
-        "googleServicesFile": "./android/google-services.json"
-      },
       "env": {
         "ENV": "preview"
       }
     },
     "production": {
-      "android": {
-        "googleServicesFile": "./android/google-services.json"
-      },
       "autoIncrement": true,
       "env": {
         "ENV": "production"
