@@ -22,6 +22,7 @@
       },
       "package": "com.lenfabricio7.botonpanicoapp"
        },
+      "googleServicesFile": "./assets/google-services.json",
     "web": {
       "favicon": "./assets/favicon.jpg"
     },
