@@ -4,6 +4,7 @@ import { Alert, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Config from '../../config/env';
 
+
 export async function registerForPushNotificationsAsync() {
   let token;
 
@@ -46,11 +47,15 @@ export async function registerForPushNotificationsAsync() {
     });
 
     const data = await response.json();
-    if (response.ok) {
-      console.log('✅ Token enviado al backend:', data);
-    } else {
-      console.error('❌ Error desde backend:', data);
-    }
+
+if (response.ok) {
+  console.log('✅ Token enviado al backend:', data);
+  Alert.alert("Resultado", response.ok ? "✅ Token guardado exitosamente" : "❌ Falló el guardado");
+
+} else {
+  console.error('❌ Error desde backend:', data);
+  Alert.alert("Error al guardar token", JSON.stringify(data));
+}
 
   } catch (error) {
     console.error('💥 Error al registrar token:', error.message);
