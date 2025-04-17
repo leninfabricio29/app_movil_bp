@@ -16,13 +16,13 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.lenfabricio7.botonpanicoapp",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.jpg",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.lenfabricio7.botonpanicoapp"
-       },
-      "googleServicesFile": "./assets/google-services.json",
+      "googleServicesFile": "./assets/google-services.json"
+    },
     "web": {
       "favicon": "./assets/favicon.jpg"
     },
