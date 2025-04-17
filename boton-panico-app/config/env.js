@@ -1,15 +1,13 @@
 // config/env.js
-// Archivo de configuración centralizado para variables de entorno
 
-// Detectar el entorno en que se ejecuta la aplicación
-const __DEV__ = process.env.NODE_ENV !== 'production';
+// Captura el entorno desde variables de entorno definidas en eas.json
+const __ENV__ = process.env.ENV || 'development';
+const __DEV__ = __ENV__ !== 'production';
 
-// Configuración de la API para diferentes entornos
 const Config = {
-  // URLs de API
-  API_URL: __DEV__ ? 'https://softkilla.es/api' : 'https://softkilla.es/api',
+  // En tu caso la URL es la misma, pero puedes cambiarla si lo deseas según __ENV__
+  API_URL: 'https://softkilla.es/api',
 
-  // Rutas específicas
   API_ROUTES: {
     REGISTER: '/users/register',
     LOGIN: '/auth/login',
@@ -20,33 +18,22 @@ const Config = {
     CONTACT_DELETE: '/contacts/:id',
   },
 
-  // Configuración de timeout para peticiones
   API_TIMEOUT: 10000,
-
-  // Otras configuraciones de la aplicación
   APP_NAME: 'SafeGuard',
-  
-  // Versión de la app
   VERSION: '1.0.0',
-  
-  // Modo de depuración
   DEBUG: __DEV__,
 
-  // Configuración de almacenamiento local
   STORAGE_KEYS: {
     AUTH_TOKEN: 'safeguard_auth_token',
     USER_DATA: 'safeguard_user_data',
   }
 };
 
-// Función helper para construir URLs completas
 Config.getFullUrl = (routeName) => {
-  // Verificar que la ruta existe en la configuración
   if (!Config.API_ROUTES[routeName]) {
     console.warn(`La ruta '${routeName}' no está definida en la configuración`);
     return Config.API_URL;
   }
-  
   return `${Config.API_URL}${Config.API_ROUTES[routeName]}`;
 };
 
